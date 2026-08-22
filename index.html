@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repository — I Miei Progetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#f5f0e6;
+    --parchment-card:#fffcf5;
+    --ink:#2b2621;
+    --ink-soft:#5c5347;
+    --gold:#c9a86a;
+    --gold-line:#e2d3ae;
+    --red:#8b1a1a;
+    --red-dark:#6e1414;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(139,26,26,0.03), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(139,26,26,0.03), transparent 40%),
+      var(--parchment);
+    font-family:'Lora', serif;
+    color:var(--ink);
+  }
+  h1,h2,h3{ font-family:'Cinzel', serif; letter-spacing:0.02em; }
+
+  /* ---------- SCHERMATE A TUTTA PAGINA (login/setup/loading/error) ---------- */
+  .auth-screen{
+    display:none;
+    min-height:100vh;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .auth-card{
+    background:var(--parchment-card);
+    border:1px solid var(--gold-line);
+    box-shadow:0 10px 30px rgba(43,38,33,0.08);
+    border-radius:6px;
+    padding:40px 38px;
+    width:100%;
+    max-width:420px;
+    text-align:center;
+  }
+  .auth-card .seal{
+    width:56px;height:56px;margin:0 auto 18px;
+    border:2px solid var(--red);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cinzel',serif;font-weight:700;color:var(--red);font-size:22px;
+  }
+  .auth-card h1{ font-size:21px; margin:0 0 6px; font-weight:600; color:var(--ink);}
+  .auth-card p.sub{ margin:0 0 26px; color:var(--ink-soft); font-size:14px; font-style:italic;}
+  .field{ text-align:left; margin-bottom:15px;}
+  .field label{ display:block; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:6px;}
+  .field input{
+    width:100%; padding:11px 13px; font-family:'Lora',serif; font-size:15px;
+    border:1px solid var(--gold-line); border-radius:4px; background:#fff;
+    color:var(--ink); outline:none; transition:border-color .15s;
+  }
+  .field input:focus{ border-color:var(--red); }
+  .field small{ display:block; color:var(--ink-soft); font-size:11.5px; margin-top:5px; }
+  .btn{
+    display:inline-block; cursor:pointer; border:none; border-radius:4px;
+    font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.05em;
+    padding:12px 22px; transition:background .15s, transform .05s;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--red); color:#fdf6ee; width:100%; margin-top:6px;}
+  .btn-primary:hover{ background:var(--red-dark); }
+  .btn-primary:disabled{ opacity:0.55; cursor:not-allowed; }
+  .auth-error{ color:var(--red); font-size:13px; margin-top:14px; min-height:16px; }
+  .auth-note{ font-size:12px; color:var(--ink-soft); margin-top:16px; line-height:1.5; }
+  .auth-note a{ color:var(--red); }
+
+  details.advanced{ text-align:left; margin:18px 0 6px; }
+  details.advanced summary{
+    cursor:pointer; font-size:12.5px; color:var(--ink-soft); letter-spacing:0.03em; outline:none;
+  }
+  details.advanced .field{ margin-top:14px; }
+
+  .spinner{
+    width:34px;height:34px; border:3px solid var(--gold-line); border-top-color:var(--red);
+    border-radius:50%; margin:0 auto 18px; animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ---------- APP ---------- */
+  #app{ display:none; max-width:1100px; margin:0 auto; padding:36px 24px 80px; }
+  header.top{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom:2px solid var(--red); padding-bottom:18px; margin-bottom:22px; flex-wrap:wrap; gap:14px;
+  }
+  header.top h1{ margin:0; font-size:26px; color:var(--ink); font-weight:600;}
+  header.top .tagline{ font-style:italic; color:var(--ink-soft); font-size:13px; margin-top:4px;}
+  .top-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .btn-ghost{
+    background:transparent; border:1px solid var(--gold-line); color:var(--ink-soft);
+    font-family:'Lora',serif; font-size:13px; padding:9px 16px; border-radius:4px; cursor:pointer;
+  }
+  .btn-ghost:hover{ border-color:var(--red); color:var(--red); }
+
+  .sync-bar{
+    display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);
+    margin-bottom:22px; font-style:italic;
+  }
+  .sync-dot{ width:8px; height:8px; border-radius:50%; background:#4d7a4d; flex-shrink:0; }
+  .sync-dot.saving{ background:var(--gold); animation:pulse 1s infinite; }
+  .sync-dot.error{ background:var(--red); }
+  @keyframes pulse{ 50%{ opacity:0.3; } }
+
+  .toolbar{ display:flex; gap:10px; margin-bottom:26px; flex-wrap:wrap; }
+  .btn-add-section{
+    background:var(--ink); color:var(--parchment-card); border:none;
+    font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.04em;
+    padding:11px 20px; border-radius:4px; cursor:pointer;
+  }
+  .btn-add-section:hover{ background:#000; }
+
+  #empty-state{ text-align:center; padding:60px 20px; color:var(--ink-soft); font-style:italic; display:none; }
+
+  .sections-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:22px; }
+  .section-card{
+    background:var(--parchment-card); border:1px solid var(--gold-line); border-radius:6px;
+    padding:22px 22px 18px; box-shadow:0 4px 14px rgba(43,38,33,0.05);
+    display:flex; flex-direction:column;
+  }
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+    border-bottom:1px solid var(--gold-line); padding-bottom:12px; margin-bottom:14px;
+  }
+  .section-head h2{ margin:0; font-size:17px; color:var(--red); font-weight:600; word-break:break-word; }
+  .icon-btn{
+    background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:16px;
+    line-height:1; padding:2px 4px; border-radius:3px; flex-shrink:0;
+  }
+  .icon-btn:hover{ color:var(--red); }
+
+  .link-list{ list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .link-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:#faf6ec; border:1px solid var(--gold-line); border-radius:4px; padding:9px 12px;
+  }
+  .link-row a{
+    color:var(--ink); text-decoration:none; font-size:14.5px; font-weight:500;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;
+  }
+  .link-row a:hover{ color:var(--red); text-decoration:underline; }
+  .link-row .icon-btn{ font-size:14px; }
+  .no-links{ font-size:13px; color:var(--ink-soft); font-style:italic; padding:4px 0 10px; }
+
+  .add-link-form{
+    display:flex; flex-direction:column; gap:8px; border-top:1px dashed var(--gold-line); padding-top:14px; margin-top:auto;
+  }
+  .add-link-form input{
+    padding:8px 10px; font-family:'Lora',serif; font-size:13.5px;
+    border:1px solid var(--gold-line); border-radius:4px; background:#fff; outline:none;
+  }
+  .add-link-form input:focus{ border-color:var(--red); }
+  .add-link-form button{
+    background:transparent; border:1px solid var(--red); color:var(--red);
+    font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.04em; padding:8px; border-radius:4px; cursor:pointer;
+  }
+  .add-link-form button:hover{ background:var(--red); color:#fdf6ee; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(43,38,33,0.45); display:none;
+    align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .modal-box{
+    background:var(--parchment-card); border-radius:6px; padding:28px; width:100%; max-width:400px;
+    border:1px solid var(--gold-line); box-shadow:0 12px 30px rgba(0,0,0,0.2); text-align:left;
+  }
+  .modal-box h3{ margin:0 0 16px; font-size:17px; color:var(--ink); }
+  .modal-box input{
+    width:100%; padding:10px 12px; font-family:'Lora',serif; font-size:14.5px;
+    border:1px solid var(--gold-line); border-radius:4px; margin-bottom:14px; outline:none;
+  }
+  .modal-box input:focus{ border-color:var(--red); }
+  .modal-box label{ display:block; font-size:12px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); margin:0 0 5px; }
+  .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+  .modal-error{ color:var(--red); font-size:13px; margin-bottom:12px; min-height:16px; }
+
+  footer.hint{ text-align:center; margin-top:40px; font-size:12px; color:var(--ink-soft); font-style:italic; }
+
+  @media (max-width:480px){
+    .auth-card{ padding:30px 22px; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="auth-screen" id="loading-screen" style="display:flex;">
+  <div class="auth-card">
+    <div class="spinner"></div>
+    <h1>Repository</h1>
+    <p class="sub">Connessione al repository in corso...</p>
+  </div>
+</div>
+
+<!-- ERRORE DI CONNESSIONE -->
+<div class="auth-screen" id="error-screen">
+  <div class="auth-card">
+    <div class="seal">!</div>
+    <h1>Impossibile leggere il repository</h1>
+    <p class="sub" id="error-message">Controlla la configurazione GitHub.</p>
+    <button class="btn btn-primary" onclick="init()">Riprova</button>
+    <button class="btn-ghost" style="width:100%; margin-top:10px;" onclick="openSettingsModal()">Impostazioni GitHub</button>
+  </div>
+</div>
+
+<!-- SETUP: primo utilizzo, il file dati non esiste ancora sul repository -->
+<div class="auth-screen" id="setup-screen">
+  <div class="auth-card">
+    <div class="seal">R</div>
+    <h1>Primo utilizzo</h1>
+    <p class="sub">Nessun archivio trovato sul repository: crealo scegliendo utente e password.</p>
+    <div class="field">
+      <label for="setup-username">Utente</label>
+      <input type="text" id="setup-username" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label for="setup-password">Password</label>
+      <input type="password" id="setup-password" autocomplete="new-password" />
+    </div>
+    <div class="field">
+      <label for="setup-password-confirm">Conferma password</label>
+      <input type="password" id="setup-password-confirm" autocomplete="new-password" />
+    </div>
+    <div class="field">
+      <label for="setup-token">Token GitHub (permessi di scrittura)</label>
+      <input type="password" id="setup-token" autocomplete="off" placeholder="ghp_..." />
+      <small>Serve solo ora, per creare il file sul repository. Resta salvato solo su questo browser. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">Crea un token</a> con permesso "Contents: Read and write" sul repository.</small>
+    </div>
+    <details class="advanced">
+      <summary>Impostazioni avanzate (repository GitHub)</summary>
+      <div class="field">
+        <label for="setup-owner">Proprietario (utente/organizzazione)</label>
+        <input type="text" id="setup-owner" />
+      </div>
+      <div class="field">
+        <label for="setup-repo">Nome repository</label>
+        <input type="text" id="setup-repo" />
+      </div>
+      <div class="field">
+        <label for="setup-path">Percorso file dati</label>
+        <input type="text" id="setup-path" />
+      </div>
+      <div class="field">
+        <label for="setup-branch">Branch</label>
+        <input type="text" id="setup-branch" />
+      </div>
+    </details>
+    <button class="btn btn-primary" id="setup-submit" onclick="trySetup()">Crea archivio e accedi</button>
+    <div class="auth-error" id="setup-error"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="auth-screen" id="login-screen">
+  <div class="auth-card">
+    <div class="seal">R</div>
+    <h1>Repository</h1>
+    <p class="sub">Accesso riservato — i tuoi progetti</p>
+    <div class="field">
+      <label for="username">Utente</label>
+      <input type="text" id="username" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" />
+    </div>
+    <button class="btn btn-primary" id="login-submit" onclick="tryLogin()">Entra</button>
+    <div class="auth-error" id="login-error"></div>
+    <p class="auth-note">Stesse credenziali da qualsiasi browser: sono lette dal repository GitHub, non dal dispositivo.<br>
+      <a href="#" onclick="openSettingsModal();return false;">Impostazioni GitHub</a>
+    </p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="top">
+    <div>
+      <h1>Repository — I Miei Progetti</h1>
+      <div class="tagline">Le mie app interattive pubblicate su GitHub Pages</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn-ghost" onclick="refreshFromGitHub()">Aggiorna dati</button>
+      <button class="btn-ghost" onclick="exportData()">Esporta backup</button>
+      <button class="btn-ghost" onclick="triggerImport()">Importa backup</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)">
+      <button class="btn-ghost" onclick="openSettingsModal()">Impostazioni GitHub</button>
+      <button class="btn-ghost" onclick="openCredentialsModal()">Cambia credenziali</button>
+      <button class="btn-ghost" onclick="logout()">Esci</button>
+    </div>
+  </header>
+
+  <div class="sync-bar">
+    <span class="sync-dot" id="sync-dot"></span>
+    <span id="sync-text">Sincronizzato con GitHub</span>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn-add-section" onclick="openNewSectionModal()">+ Nuova sezione</button>
+  </div>
+
+  <div id="empty-state">Nessuna sezione ancora. Crea la prima sezione per iniziare a raccogliere i tuoi link.</div>
+
+  <div class="sections-grid" id="sections-grid"></div>
+
+  <footer class="hint">I dati sono salvati nel file <span id="path-hint"></span> del tuo repository GitHub: sono quindi identici su ogni browser e dispositivo.</footer>
+</div>
+
+<!-- MODAL NUOVA SEZIONE -->
+<div class="modal-overlay" id="new-section-modal">
+  <div class="modal-box">
+    <h3>Nuova sezione</h3>
+    <input type="text" id="new-section-name" placeholder="Es. Escape Room, Autori, Latino..." onkeydown="if(event.key==='Enter')confirmNewSection()">
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeNewSectionModal()">Annulla</button>
+      <button class="btn btn-primary" style="width:auto;" onclick="confirmNewSection()">Crea</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CAMBIA CREDENZIALI -->
+<div class="modal-overlay" id="credentials-modal">
+  <div class="modal-box">
+    <h3>Cambia credenziali</h3>
+    <label for="cred-username">Nuovo utente</label>
+    <input type="text" id="cred-username">
+    <label for="cred-password">Nuova password</label>
+    <input type="password" id="cred-password" autocomplete="new-password">
+    <label for="cred-password-confirm">Conferma nuova password</label>
+    <input type="password" id="cred-password-confirm" autocomplete="new-password">
+    <div class="modal-error" id="cred-error"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeCredentialsModal()">Annulla</button>
+      <button class="btn btn-primary" style="width:auto;" onclick="confirmCredentialsChange()">Salva su GitHub</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPOSTAZIONI GITHUB -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-box">
+    <h3>Impostazioni GitHub</h3>
+    <label for="settings-owner">Proprietario</label>
+    <input type="text" id="settings-owner">
+    <label for="settings-repo">Repository</label>
+    <input type="text" id="settings-repo">
+    <label for="settings-path">Percorso file dati</label>
+    <input type="text" id="settings-path">
+    <label for="settings-branch">Branch</label>
+    <input type="text" id="settings-branch">
+    <label for="settings-token">Token GitHub (per salvare le modifiche)</label>
+    <input type="password" id="settings-token" placeholder="ghp_..." autocomplete="off">
+    <div class="modal-error" id="settings-error"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeSettingsModal()">Annulla</button>
+      <button class="btn btn-primary" style="width:auto;" onclick="confirmSettings()">Salva e ricarica</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CONFIGURAZIONE GITHUB (valori di default)
+   Login e contenuti sono letti/scritti in questo file, sul
+   repository, cosicché siano identici su ogni browser.
+   ========================================================= */
+const DEFAULT_CONFIG = {
+  owner: "gianlucaronzio",
+  repo: "Repository",
+  path: "repository-hub/data.json",
+  branch: "main"
+};
+
+const CONFIG_KEY = "repository_hub_github_config";
+const TOKEN_KEY = "repository_hub_github_token";
+const SESSION_KEY = "repository_hub_session";
+
+let data = { auth: null, sections: [] };
+let remoteSha = null;
+
+/* ---------- CONFIGURAZIONE ---------- */
+function getConfig(){
+  try{
+    const raw = localStorage.getItem(CONFIG_KEY);
+    return raw ? { ...DEFAULT_CONFIG, ...JSON.parse(raw) } : { ...DEFAULT_CONFIG };
+  }catch(e){
+    return { ...DEFAULT_CONFIG };
+  }
+}
+function saveConfig(cfg){
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+}
+function getToken(){
+  return localStorage.getItem(TOKEN_KEY) || "";
+}
+function saveToken(t){
+  if(t){ localStorage.setItem(TOKEN_KEY, t); }
+  else{ localStorage.removeItem(TOKEN_KEY); }
+}
+
+/* ---------- UTILITY ---------- */
+function uid(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : str;
+  return div.innerHTML;
+}
+function utf8ToBase64(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function base64ToUtf8(str){
+  return decodeURIComponent(escape(atob(str.replace(/\n/g,''))));
+}
+async function hashPassword(username, password){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(username.trim().toLowerCase() + ':' + password));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function apiUrl(cfg){
+  const encodedPath = cfg.path.split('/').map(encodeURIComponent).join('/');
+  return `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${encodedPath}`;
+}
+function showScreen(id){
+  document.querySelectorAll('.auth-screen').forEach(el => el.style.display = 'none');
+  document.getElementById('app').style.display = 'none';
+  if(id) document.getElementById(id).style.display = 'flex';
+}
+
+/* ---------- LETTURA / SCRITTURA SU GITHUB ---------- */
+async function fetchRemote(){
+  const cfg = getConfig();
+  const token = getToken();
+  const headers = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if(token) headers['Authorization'] = `Bearer ${token}`;
+  try{
+    const res = await fetch(`${apiUrl(cfg)}?ref=${encodeURIComponent(cfg.branch)}`, { headers });
+    if(res.status === 404){
+      return { ok:false, status:404 };
+    }
+    if(!res.ok){
+      let msg = res.statusText;
+      try{ const j = await res.json(); if(j.message) msg = j.message; }catch(e){}
+      return { ok:false, status:res.status, error:msg };
+    }
+    const json = await res.json();
+    const parsed = JSON.parse(base64ToUtf8(json.content));
+    return { ok:true, data:parsed, sha:json.sha };
+  }catch(e){
+    return { ok:false, status:0, error:'Errore di rete o configurazione (' + e.message + ')' };
+  }
+}
+
+async function pushRemote(commitMessage){
+  const cfg = getConfig();
+  const token = getToken();
+  if(!token){
+    return { ok:false, error:'Nessun token GitHub configurato su questo browser. Apri "Impostazioni GitHub" per aggiungerlo.' };
+  }
+  const headers = {
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
+  const body = {
+    message: commitMessage,
+    content: utf8ToBase64(JSON.stringify(data, null, 2)),
+    branch: cfg.branch
+  };
+  if(remoteSha) body.sha = remoteSha;
+  try{
+    const res = await fetch(apiUrl(cfg), { method:'PUT', headers, body: JSON.stringify(body) });
+    if(!res.ok){
+      let msg = res.statusText;
+      try{ const j = await res.json(); if(j.message) msg = j.message; }catch(e){}
+      if(res.status === 409 || res.status === 422){
+        msg = 'Il file è stato aggiornato da un altro dispositivo. Ricarico i dati più recenti: ripeti la modifica.';
+        await refreshFromGitHub(true);
+      }
+      return { ok:false, error:msg };
+    }
+    const json = await res.json();
+    remoteSha = json.content.sha;
+    return { ok:true };
+  }catch(e){
+    return { ok:false, error:'Errore di rete durante il salvataggio (' + e.message + ')' };
+  }
+}
+
+function setSyncStatus(state, text){
+  const dot = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-text');
+  dot.className = 'sync-dot' + (state ? ' ' + state : '');
+  label.textContent = text;
+}
+
+async function saveRemote(commitMessage, successText){
+  setSyncStatus('saving', 'Salvataggio su GitHub in corso...');
+  const result = await pushRemote(commitMessage);
+  if(result.ok){
+    setSyncStatus('', successText || 'Sincronizzato con GitHub');
+  }else{
+    setSyncStatus('error', result.error || 'Errore di salvataggio');
+    alert('Non è stato possibile salvare su GitHub: ' + (result.error || 'errore sconosciuto'));
+  }
+  return result.ok;
+}
+
+/* ---------- INIT / SCHERMATE ---------- */
+async function init(){
+  showScreen('loading-screen');
+  const result = await fetchRemote();
+  if(result.ok){
+    data = result.data;
+    remoteSha = result.sha;
+    if(sessionStorage.getItem(SESSION_KEY) === '1' && data.auth){
+      showApp();
+    }else{
+      showScreen('login-screen');
+    }
+  }else if(result.status === 404){
+    prefillSetupAdvanced();
+    showScreen('setup-screen');
+  }else{
+    document.getElementById('error-message').textContent =
+      result.error || 'Verifica proprietario, repository, percorso e token nelle impostazioni.';
+    showScreen('error-screen');
+  }
+}
+
+function prefillSetupAdvanced(){
+  const cfg = getConfig();
+  document.getElementById('setup-owner').value = cfg.owner;
+  document.getElementById('setup-repo').value = cfg.repo;
+  document.getElementById('setup-path').value = cfg.path;
+  document.getElementById('setup-branch').value = cfg.branch;
+}
+
+/* ---------- SETUP (creazione archivio iniziale) ---------- */
+async function trySetup(){
+  const u = document.getElementById('setup-username').value.trim();
+  const p = document.getElementById('setup-password').value;
+  const p2 = document.getElementById('setup-password-confirm').value;
+  const token = document.getElementById('setup-token').value.trim();
+  const err = document.getElementById('setup-error');
+  const btn = document.getElementById('setup-submit');
+
+  if(!u || !p){ err.textContent = 'Inserisci utente e password.'; return; }
+  if(p !== p2){ err.textContent = 'Le due password non coincidono.'; return; }
+  if(!token){ err.textContent = 'Inserisci un token GitHub per creare il file.'; return; }
+
+  const cfg = {
+    owner: document.getElementById('setup-owner').value.trim() || DEFAULT_CONFIG.owner,
+    repo: document.getElementById('setup-repo').value.trim() || DEFAULT_CONFIG.repo,
+    path: document.getElementById('setup-path').value.trim() || DEFAULT_CONFIG.path,
+    branch: document.getElementById('setup-branch').value.trim() || DEFAULT_CONFIG.branch
+  };
+  saveConfig(cfg);
+  saveToken(token);
+
+  btn.disabled = true;
+  err.textContent = '';
+
+  data = {
+    auth: { username: u, passwordHash: await hashPassword(u, p) },
+    sections: [
+      { id: uid(), title: 'Escape Room', links: [] },
+      { id: uid(), title: 'Pagine Autore', links: [] },
+      { id: uid(), title: 'App Tematiche', links: [] },
+      { id: uid(), title: 'Latino', links: [] }
+    ]
+  };
+  remoteSha = null;
+
+  const result = await pushRemote('Crea archivio iniziale del Repository hub');
+  btn.disabled = false;
+  if(result.ok){
+    sessionStorage.setItem(SESSION_KEY, '1');
+    showApp();
+  }else{
+    err.textContent = result.error || 'Errore durante la creazione del file.';
+  }
+}
+
+/* ---------- LOGIN ---------- */
+async function tryLogin(){
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  const err = document.getElementById('login-error');
+  const btn = document.getElementById('login-submit');
+  btn.disabled = true;
+  err.textContent = '';
+
+  // ricarica i dati più recenti prima di verificare (nel caso siano cambiati altrove)
+  const result = await fetchRemote();
+  if(!result.ok){
+    btn.disabled = false;
+    err.textContent = 'Impossibile contattare GitHub in questo momento. Riprova.';
+    return;
+  }
+  data = result.data;
+  remoteSha = result.sha;
+
+  const hash = await hashPassword(u, p);
+  if(data.auth && u.toLowerCase() === data.auth.username.trim().toLowerCase() && hash === data.auth.passwordHash){
+    sessionStorage.setItem(SESSION_KEY, '1');
+    showApp();
+  }else{
+    btn.disabled = false;
+    err.textContent = 'Utente o password non corretti.';
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('login-error').textContent = '';
+  showScreen('login-screen');
+}
+
+function showApp(){
+  document.getElementById('path-hint').textContent = getConfig().path;
+  showScreen(null);
+  document.getElementById('app').style.display = 'block';
+  setSyncStatus('', 'Sincronizzato con GitHub');
+  render();
+}
+
+async function refreshFromGitHub(silent){
+  if(!silent) setSyncStatus('saving', 'Aggiornamento dati da GitHub...');
+  const result = await fetchRemote();
+  if(result.ok){
+    data = result.data;
+    remoteSha = result.sha;
+    render();
+    setSyncStatus('', 'Sincronizzato con GitHub');
+  }else{
+    setSyncStatus('error', 'Impossibile aggiornare i dati');
+    if(!silent) alert('Impossibile aggiornare da GitHub: ' + (result.error || 'errore sconosciuto'));
+  }
+}
+
+/* ---------- RENDER SEZIONI/LINK ---------- */
+function render(){
+  const grid = document.getElementById('sections-grid');
+  const empty = document.getElementById('empty-state');
+  grid.innerHTML = '';
+
+  if(!data.sections || data.sections.length === 0){
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  data.sections.forEach(section => {
+    const card = document.createElement('div');
+    card.className = 'section-card';
+
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = `
+      <h2>${escapeHtml(section.title)}</h2>
+      <button class="icon-btn" title="Cancella sezione" onclick="deleteSection('${section.id}')">✕</button>
+    `;
+    card.appendChild(head);
+
+    if(section.links.length === 0){
+      const p = document.createElement('div');
+      p.className = 'no-links';
+      p.textContent = 'Nessun link ancora.';
+      card.appendChild(p);
+    }else{
+      const list = document.createElement('ul');
+      list.className = 'link-list';
+      section.links.forEach(link => {
+        const li = document.createElement('li');
+        li.className = 'link-row';
+        li.innerHTML = `
+          <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(link.url)}">${escapeHtml(link.title)}</a>
+          <button class="icon-btn" title="Cancella link" onclick="deleteLink('${section.id}','${link.id}')">✕</button>
+        `;
+        list.appendChild(li);
+      });
+      card.appendChild(list);
+    }
+
+    const form = document.createElement('div');
+    form.className = 'add-link-form';
+    form.innerHTML = `
+      <input type="text" placeholder="Nome dell'app" id="title-${section.id}">
+      <input type="url" placeholder="https://tuonome.github.io/Repository/..." id="url-${section.id}">
+      <button onclick="addLink('${section.id}')">+ Aggiungi link</button>
+    `;
+    card.appendChild(form);
+
+    grid.appendChild(card);
+  });
+}
+
+/* ---------- SEZIONI ---------- */
+function openNewSectionModal(){
+  document.getElementById('new-section-modal').style.display = 'flex';
+  document.getElementById('new-section-name').value = '';
+  document.getElementById('new-section-name').focus();
+}
+function closeNewSectionModal(){
+  document.getElementById('new-section-modal').style.display = 'none';
+}
+async function confirmNewSection(){
+  const name = document.getElementById('new-section-name').value.trim();
+  if(!name) return;
+  data.sections.push({ id: uid(), title: name, links: [] });
+  render();
+  closeNewSectionModal();
+  await saveRemote(`Aggiunge sezione "${name}"`);
+}
+async function deleteSection(sectionId){
+  const section = data.sections.find(s => s.id === sectionId);
+  if(!section) return;
+  const linkCount = section.links.length;
+  const msg = linkCount > 0
+    ? `Cancellare la sezione "${section.title}" e i suoi ${linkCount} link?`
+    : `Cancellare la sezione "${section.title}"?`;
+  if(!confirm(msg)) return;
+  data.sections = data.sections.filter(s => s.id !== sectionId);
+  render();
+  await saveRemote(`Cancella sezione "${section.title}"`);
+}
+
+/* ---------- LINK ---------- */
+async function addLink(sectionId){
+  const titleInput = document.getElementById(`title-${sectionId}`);
+  const urlInput = document.getElementById(`url-${sectionId}`);
+  const title = titleInput.value.trim();
+  let url = urlInput.value.trim();
+  if(!title || !url){ alert('Inserisci sia il nome che il link.'); return; }
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const section = data.sections.find(s => s.id === sectionId);
+  if(!section) return;
+  section.links.push({ id: uid(), title, url });
+  render();
+  await saveRemote(`Aggiunge link "${title}"`);
+}
+async function deleteLink(sectionId, linkId){
+  const section = data.sections.find(s => s.id === sectionId);
+  if(!section) return;
+  const link = section.links.find(l => l.id === linkId);
+  if(!confirm('Cancellare questo link?')) return;
+  section.links = section.links.filter(l => l.id !== linkId);
+  render();
+  await saveRemote(`Cancella link "${link ? link.title : ''}"`);
+}
+
+/* ---------- CAMBIO CREDENZIALI ---------- */
+function openCredentialsModal(){
+  document.getElementById('cred-username').value = data.auth ? data.auth.username : '';
+  document.getElementById('cred-password').value = '';
+  document.getElementById('cred-password-confirm').value = '';
+  document.getElementById('cred-error').textContent = '';
+  document.getElementById('credentials-modal').style.display = 'flex';
+}
+function closeCredentialsModal(){
+  document.getElementById('credentials-modal').style.display = 'none';
+}
+async function confirmCredentialsChange(){
+  const u = document.getElementById('cred-username').value.trim();
+  const p = document.getElementById('cred-password').value;
+  const p2 = document.getElementById('cred-password-confirm').value;
+  const err = document.getElementById('cred-error');
+  if(!u || !p){ err.textContent = 'Inserisci utente e password.'; return; }
+  if(p !== p2){ err.textContent = 'Le due password non coincidono.'; return; }
+  data.auth = { username: u, passwordHash: await hashPassword(u, p) };
+  closeCredentialsModal();
+  const ok = await saveRemote('Aggiorna credenziali di accesso', 'Credenziali aggiornate su GitHub');
+  if(ok) alert('Credenziali aggiornate. Usa le nuove credenziali dal prossimo accesso su ogni browser.');
+}
+
+/* ---------- IMPOSTAZIONI GITHUB ---------- */
+function openSettingsModal(){
+  const cfg = getConfig();
+  document.getElementById('settings-owner').value = cfg.owner;
+  document.getElementById('settings-repo').value = cfg.repo;
+  document.getElementById('settings-path').value = cfg.path;
+  document.getElementById('settings-branch').value = cfg.branch;
+  document.getElementById('settings-token').value = getToken();
+  document.getElementById('settings-error').textContent = '';
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+function closeSettingsModal(){
+  document.getElementById('settings-modal').style.display = 'none';
+}
+function confirmSettings(){
+  const owner = document.getElementById('settings-owner').value.trim();
+  const repo = document.getElementById('settings-repo').value.trim();
+  const path = document.getElementById('settings-path').value.trim();
+  const branch = document.getElementById('settings-branch').value.trim();
+  const token = document.getElementById('settings-token').value.trim();
+  const err = document.getElementById('settings-error');
+  if(!owner || !repo || !path || !branch){
+    err.textContent = 'Compila tutti i campi del repository.';
+    return;
+  }
+  saveConfig({ owner, repo, path, branch });
+  saveToken(token);
+  closeSettingsModal();
+  sessionStorage.removeItem(SESSION_KEY);
+  init();
+}
+
+/* ---------- BACKUP LOCALE ---------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify({ sections: data.sections }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'repository-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function triggerImport(){
+  document.getElementById('import-file').click();
+}
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!imported || !Array.isArray(imported.sections)) throw new Error('Formato non valido');
+      if(confirm('Importare questo backup? Sovrascriverà le sezioni attuali su GitHub.')){
+        data.sections = imported.sections;
+        render();
+        await saveRemote('Importa backup sezioni');
+      }
+    }catch(err){
+      alert('File di backup non valido.');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* ---------- LISTENER TASTIERA ---------- */
+document.getElementById('password').addEventListener('keydown', e => { if(e.key === 'Enter') tryLogin(); });
+document.getElementById('username').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('password').focus(); });
+document.getElementById('setup-password-confirm').addEventListener('keydown', e => { if(e.key === 'Enter') trySetup(); });
+
+init();
+</script>
+</body>
+</html>
