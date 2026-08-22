@@ -1,0 +1,28 @@
+{
+  "auth": {
+    "username": "Gianluca",
+    "passwordHash": "be98f0620c4ba5e12534b9d6a3fc3b126e29839c6577c9ef6116086b2a2aa3ce"
+  },
+  "sections": [
+    {
+      "id": "mt43bi8au3us47",
+      "title": "Escape Room",
+      "links": []
+    },
+    {
+      "id": "mt43bi8abumuj6",
+      "title": "Pagine Autore",
+      "links": []
+    },
+    {
+      "id": "mt43bi8akpdodn",
+      "title": "App Tematiche",
+      "links": []
+    },
+    {
+      "id": "mt43bi8asytw2e",
+      "title": "Latino",
+      "links": []
+    }
+  ]
+}
