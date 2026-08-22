@@ -7,7 +7,13 @@
     {
       "id": "mt43bi8abumuj6",
       "title": "Pagine Autore",
-      "links": []
+      "links": [
+        {
+          "id": "mt43ehornnjk6m",
+          "title": "Heidegger",
+          "url": "https://gianlucaronzio.github.io/Heiddeger/"
+        }
+      ]
     },
     {
       "id": "mt43bi8akpdodn",
