@@ -70,7 +70,13 @@
     {
       "id": "mtgwwfun097cyn",
       "title": "Scuola",
-      "links": []
+      "links": [
+        {
+          "id": "mtgwxawq8skms6",
+          "title": "Ogni cosa è illuminata (romanzo)",
+          "url": "https://gianlucaronzio.github.io/OEIromanzo/"
+        }
+      ]
     }
   ]
 }
