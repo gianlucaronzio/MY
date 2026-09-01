@@ -91,7 +91,13 @@
     {
       "id": "mti77bipzrzd1e",
       "title": "Programmi 2026-2027",
-      "links": []
+      "links": [
+        {
+          "id": "mti795dzih2hee",
+          "title": "Programma Latino 4AS",
+          "url": "https://gianlucaronzio.github.io/latino4AS/"
+        }
+      ]
     }
   ]
 }
