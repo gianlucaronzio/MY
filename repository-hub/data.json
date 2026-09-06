@@ -122,7 +122,13 @@
     {
       "id": "mtpf7hbqd1tvq4",
       "title": "Famiglia",
-      "links": []
+      "links": [
+        {
+          "id": "mtpfvu6ifwz8sj",
+          "title": "SM Giorno per giorno",
+          "url": "https://gianlucaronzio.github.io/SM/"
+        }
+      ]
     }
   ]
 }
