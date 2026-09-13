@@ -148,7 +148,13 @@
     {
       "id": "mtzhfmiu7up293",
       "title": "IOE",
-      "links": []
+      "links": [
+        {
+          "id": "mtzhj75h0ake52",
+          "title": "Liceo Made in Italy Buscate",
+          "url": "https://gianlucaronzio.github.io/madeinItalyBuscate/"
+        }
+      ]
     }
   ]
 }
