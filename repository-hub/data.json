@@ -179,7 +179,13 @@
     {
       "id": "mul7vcx03ov880",
       "title": "Psicologia",
-      "links": []
+      "links": [
+        {
+          "id": "mul7wtyttrgy2h",
+          "title": "S. Rossi Sentimenti maleducati",
+          "url": "https://docs.google.com/presentation/d/10I6BUHuFD4AavgCNhdXBk0VXVJpD5V1D/edit?usp=drive_link&ouid=102026390723796715884&rtpof=true&sd=true"
+        }
+      ]
     }
   ]
 }
